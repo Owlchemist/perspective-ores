@@ -86,11 +86,11 @@ namespace PerspectiveOres
             }
             void RecolorMineables()
             {
-                foreach (var item in lumps)
+                foreach (var lumpCell in lumps)
                 {
-                    var color = lumpColors.TryGetValue(item.Value);
-                    if (color == null) continue;
-                    var graphic = item.Key.def.graphicData;
+                    if (!lumpColors.TryGetValue(lumpCell.Value, out Color color)) continue;
+
+                    var graphic = lumpCell.Key.def.graphicData;
                     //Check if the graphic already exists
                     var cachedGraphic = graphicCache.TryGetValue((graphic, color));
                     if (cachedGraphic == null)
@@ -101,7 +101,7 @@ namespace PerspectiveOres
                         cachedGraphic = GraphicUtility.WrapLinked(cachedGraphic, graphic.linkType);
                         graphicCache.Add((graphic, color), cachedGraphic);
                     }
-                    item.Key.graphicInt = cachedGraphic;
+                    lumpCell.Key.graphicInt = cachedGraphic;
                 }
             }
         }

@@ -18,7 +18,7 @@ namespace PerspectiveOres
             for (int i = 0; i < length; i++)
             {
                 var def = list[i];
-                if (def.thingClass == typeof(Mineable) && def.building != null && def.building.isResourceRock && def.building.isNaturalRock) mineableDefs.Add(def);
+                if (def.thingClass == typeof(Mineable) && def.building != null && def.building.isResourceRock) mineableDefs.Add(def);
             }
             new Harmony("Owlchemist.PerspectiveOres").PatchAll();
 
