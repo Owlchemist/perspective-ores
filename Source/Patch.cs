@@ -48,7 +48,7 @@ namespace PerspectiveOres
                 if (reset) map.mapDrawer.RegenerateEverythingNow();
                 return; //Found nothing
             }
-            Log.Message("[Perspective: Ores] identified " + lumps.Count.ToString() + " resource lumps.");
+            if (Prefs.DevMode) Log.Message("[Perspective: Ores] identified " + lumps.Count.ToString() + " resource lumps.");
 
             AssociateLumps();
             LongEventHandler.QueueLongEvent(() => RecolorMineables(), null, false, null);
@@ -56,7 +56,7 @@ namespace PerspectiveOres
 
             void DetermineLump(ThingDef def, int lumpID, IntVec3 pos)
             {
-                foreach (var item in GenAdjFast.AdjacentCells8Way(pos).ToList())
+                foreach (IntVec3 item in GenAdjFast.AdjacentCells8Way(pos).ToArray())
                 {
                     var edifice = item.GetEdifice(map);
                     if (edifice == null || edifice.def != def || lumps.ContainsKey(edifice) || edifice is not Mineable mineableEdifice) continue;
@@ -68,32 +68,31 @@ namespace PerspectiveOres
             }
             void AssociateLumps()
             {
-                foreach (var lumpCell in lumps) //Key = the mineable thing, Value = its lumpID
+                foreach (var (mineable, lumpID) in lumps) //Key = the mineable thing, Value = its lumpID
                 {
-                    if (lumpColors.ContainsKey(lumpCell.Value)) continue; //This lump has already found its match, skip.
+                    if (lumpColors.ContainsKey(lumpID)) continue; //This lump has already found its match, skip.
 
                     //Look around this mineral and try to find a stone
-                    foreach (var pos in GenAdjFast.AdjacentCells8Way(lumpCell.Key.Position))
+                    foreach (var pos in GenAdjFast.AdjacentCells8Way(mineable.Position))
                     {
                         var edifice = pos.GetEdifice(map);
-                        if (edifice == null || edifice.def == lumpCell.Key.def || edifice is not Mineable mineableEdifice) continue;
+                        if (edifice == null || edifice.def == mineable.def || edifice is not Mineable mineableEdifice) continue;
                         if (mineableEdifice.def.building.isResourceRock || !mineableEdifice.def.building.isNaturalRock) continue;
 
-                        lumpColors.Add(lumpCell.Value, edifice.DrawColor);
+                        lumpColors.Add(lumpID, edifice.DrawColor);
                         break;
                     }
                 }
             }
             void RecolorMineables()
             {
-                foreach (var lumpCell in lumps)
+                foreach (var (mineable, lumpID) in lumps)
                 {
-                    if (!lumpColors.TryGetValue(lumpCell.Value, out Color color)) continue;
+                    if (!lumpColors.TryGetValue(lumpID, out Color color)) continue;
 
-                    var graphic = lumpCell.Key.def.graphicData;
+                    var graphic = mineable.def.graphicData;
                     //Check if the graphic already exists
-                    var cachedGraphic = graphicCache.TryGetValue((graphic, color));
-                    if (cachedGraphic == null)
+                    if (!graphicCache.TryGetValue((graphic, color), out Graphic cachedGraphic))
                     {
                         cachedGraphic = GraphicDatabase.Get(graphic.graphicClass, graphic.texPath, 
                             (graphic.shaderType ?? ShaderTypeDefOf.Cutout).Shader, graphic.drawSize, color, graphic.colorTwo, graphic, graphic.shaderParameters, graphic.maskPath);
@@ -101,7 +100,7 @@ namespace PerspectiveOres
                         cachedGraphic = GraphicUtility.WrapLinked(cachedGraphic, graphic.linkType);
                         graphicCache.Add((graphic, color), cachedGraphic);
                     }
-                    lumpCell.Key.graphicInt = cachedGraphic;
+                    mineable.graphicInt = cachedGraphic;
                 }
             }
         }
