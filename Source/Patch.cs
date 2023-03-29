@@ -1,7 +1,6 @@
 using HarmonyLib;
 using Verse;
 using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using UnityEngine;
 using static PerspectiveOres.ModSettings_PerspectiveOres;
@@ -26,8 +25,7 @@ namespace PerspectiveOres
             int nextLumpID = 0;
             
             var list = map.listerThings.listsByGroup[2];
-            var length = list.Count;
-            for (int i = 0; i < length; i++)
+            for (int i = list.Count; i-- > 0;)
             {
                 var thing = list[i];
                 if (thing is not Mineable mineable || ModSettings_PerspectiveOres.skippedMineableDefs.Contains(thing.def.defName)) 
@@ -48,7 +46,7 @@ namespace PerspectiveOres
                 if (reset) map.mapDrawer.RegenerateEverythingNow();
                 return; //Found nothing
             }
-            if (Prefs.DevMode) Log.Message("[Perspective: Ores] identified " + lumps.Count.ToString() + " resource lumps.");
+            if (Prefs.DevMode && DebugSettings.godMode) Log.Message("[Perspective: Ores] identified " + lumps.Count + " resource lumps.");
 
             AssociateLumps();
             LongEventHandler.QueueLongEvent(() => RecolorMineables(), null, false, null);

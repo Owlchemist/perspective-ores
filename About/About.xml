@@ -6,6 +6,7 @@
     <supportedVersions>
 		<li>1.4</li>
 	</supportedVersions>
+	<modVersion>1.0.4</modVersion>
     <description>A graphical mod that recolors mineable ore to blend in with the surrounding cliffs.</description>
 	<modDependencies>
 		<li>

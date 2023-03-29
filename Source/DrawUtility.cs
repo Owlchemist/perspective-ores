@@ -14,11 +14,10 @@ namespace PerspectiveOres
 		static DrawUtility()
         {
             var list = DefDatabase<ThingDef>.AllDefsListForReading;
-            var length = list.Count;
-            for (int i = 0; i < length; i++)
+            for (int i = list.Count; i-- > 0;)
             {
                 var def = list[i];
-                if (def.thingClass == typeof(Mineable) && def.building != null && def.building.isResourceRock) mineableDefs.Add(def);
+                if (def.thingClass == mineable && def.building != null && def.building.isResourceRock) mineableDefs.Add(def);
             }
             new Harmony("Owlchemist.PerspectiveOres").PatchAll();
 
@@ -26,6 +25,7 @@ namespace PerspectiveOres
 			if (skippedMineableDefs == null) skippedMineableDefs = new HashSet<string>() { DefDatabase<ThingDef>.GetNamed("MineableComponentsIndustrial").defName };
         }
 
+		static System.Type mineable = typeof(Mineable);
 		static List<ThingDef> mineableDefs = new List<ThingDef>();
 		public static int lineNumber, cellPosition;
 		public const int lineHeight = 22; //Text.LineHeight + options.verticalSpacing;
@@ -33,16 +33,15 @@ namespace PerspectiveOres
 		{
 			lineNumber = cellPosition = 0; //Reset
 			//List out all the unremoved defs from the compiled database
-			foreach (ThingDef def in mineableDefs)
+			for (int i = mineableDefs.Count; i-- > 0;)
 			{
+				ThingDef def = mineableDefs[i];
 				if (def != null)
 				{
+					DrawListItem(options, def);
 					cellPosition += lineHeight;
 					++lineNumber;
-					
-					if (cellPosition > scrollPos.y - container.height && cellPosition < scrollPos.y + container.height) DrawListItem(options, def);
 				}
-				
 			}
 		}
 
@@ -101,13 +100,7 @@ namespace PerspectiveOres
 			}
 
 			//Checkbox
-			if (Widgets.ButtonInvisible(rect, true))
-			{
-				checkOn = !checkOn;
-				if (checkOn) SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera(null);
-				else SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera(null);
-			}
-			Widgets.CheckboxDraw(rect.xMax - 24f, rect.y, checkOn, false, 24f, null, null);
+			Widgets.Checkbox(new Vector2(rect.xMax - 24f, rect.y), ref checkOn, paintable: true);
 		}
 	}
 }

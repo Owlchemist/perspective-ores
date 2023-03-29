@@ -16,29 +16,24 @@ namespace PerspectiveOres
 		public override void DoSettingsWindowContents(Rect inRect)
 		{
 			Listing_Standard options = new Listing_Standard();
-			//Make stationary rect for the filter box
-			Rect filterRect = new Rect(inRect.x, inRect.y + 30f, inRect.width, 100f);
+			
 			//Prepare scrollable view area rect
 			Rect scrollViewRect = inRect;
 			scrollViewRect.y += 30f;
 			scrollViewRect.yMax -= 30f;
 			
-			//Prepare line height cache
-			TextAnchor anchor = Text.Anchor;
-			Text.Anchor = TextAnchor.MiddleLeft;
-
 			//Calculate size of rect based on content
 			Rect listRect = new Rect(0f, 0f, inRect.width - 30f, (lineNumber + 2) * lineHeight);
 
 			options.Begin(inRect);
+				options.Label("PerspectiveOres.Settings.Header".Translate());
 			options.End();
 			Widgets.BeginScrollView(scrollViewRect, ref scrollPos, listRect, true);
 				options.Begin(listRect);
-				options.Label("PerspectiveOres.Settings.Header".Translate());
-				DrawList(inRect, options);
-				Text.Anchor = anchor;
+					DrawList(listRect, options);
 				options.End();
 			Widgets.EndScrollView();
+			
 			
 			base.DoSettingsWindowContents(inRect);
 		}
